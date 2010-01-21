@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 from dataAnalysis import *
+import sys
 
 xs = []
 ys = []
 fs = []
 
-for run in arange(30)+1:
+sys.argv.pop(0)
 
-    n = getCsvArray("run%d-results.txt"%run, 0) + 1
-    m = getCsvArray("run%d-results.txt"%run, 3)
+for file in sys.argv:
+    print "Reading file", file
+    n = getCsvArray(file, 0) + 1
+    m = getCsvArray(file, 3)
 
     x = []
     y = []
@@ -31,7 +34,7 @@ for run in arange(30)+1:
     fs.append(f)
     scatter(x,y)
     plot(x,f)
-    savefig("summary%d.png"%run)
+    savefig("%s-summary.png"%file)
     cla()
 
 minfs = []
