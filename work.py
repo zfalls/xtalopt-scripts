@@ -104,16 +104,18 @@ plot(x,minfs, color='g', label="Best-best structure")
 # Fit average f function
 E_min = min(minfs)
 E_0 = ave_energy-E_min
+
 def bestFitFunction(c,x,y,get_y=False):
-    y_model = E_0*(e**(c[0]*x**c[1] + c[2]*x)) + E_min
+    y_model = E_0*(e**(c[0]*x**c[1])) + E_min
     if get_y == True: return y_model
     error = y-y_model
     return error
 
 reg,err,rsq = plotFitData(x,avefs, "Structure number", "Enthalpy (eV)", "Hartke Plot", 
-                          "custom", plotData=False, color='r', fitFormat=':', 
-                          guess=array([-1,1,1]), func=bestFitFunction, fitLabel="regEqu", 
-                          customFitLabel="$%se^{(%%s)x^{%%s}+(%%s)x}+%s$"%(E_0,E_min))
+                          "custom", plotData=False, color='k', fitFormat=':', 
+                          guess=array([-1,1]), func=bestFitFunction, fitLabel="regEqu", 
+                          customFitLabel="$%se^{(%%s)x^{%%s}}+%s$"%(E_0,E_min))
+print "R^2 for hartke fit:",rsq
 
 # Solve for halflife with Newton-Raphson:
 tol = 1e-10
@@ -122,7 +124,7 @@ diff = 1e-5
 
 const = -log(1/2.0)
 def bestHalfLife(x):
-    return reg[0]*x**reg[1] + reg[2]*x + const
+    return reg[0]*x**reg[1] + const
 x = guess
 val = bestHalfLife(x)
 print E_0, E_min, const, reg, x, val
