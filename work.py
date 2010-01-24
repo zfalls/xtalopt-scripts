@@ -20,13 +20,14 @@ for file in sys.argv:
     print "Reading file", file
     n = getCsvArray(file, 0) + 1
     m = getCsvArray(file, 3)
+    gen = getCsvArray(file, 1)
 
     x = []
     y = []
 
     # Remove bad values, e.g. errored xtals
     for i in range(len(n)):
-        if abs(m[i]) > 10:
+        if abs(m[i]) > 10 and gen[i] != 1:
             x.append(n[i])
             y.append(m[i])
 
