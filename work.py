@@ -3,9 +3,12 @@ from dataAnalysis import *
 import sys
 
 #
-# Average energy from a random analysis:
+# Configuration:
 #
+# Average energy from a random analysis:
 ave_energy = -622.52807
+# DPI for images
+dpi = 150
 
 #
 # Read data in from files on command line
@@ -44,8 +47,8 @@ for file in sys.argv:
     fs.append(f)
     # Create a summary plot for each data set
     scatter(x,y)
-    plot(x,f)
-    savefig("%s-summary.png"%file)
+    plotFitData(x,f, "Structure number", "Enthalpy (eV)", "Summary for %s"%file, "connect", plotData = False, color='r')
+    savefig("%s-summary.png"%file, dpi=dpi)
     cla()
 
 #
@@ -91,7 +94,7 @@ for point in range(minlen):
 
 plotFitData(x, percents, "Structure number", "Percent of runs with lowest energy structure", "Percent complete by structure", 
             plotData=False, regType="connect")
-savefig("percents.png")
+savefig("percents.png", dpi=dpi)
 cla()
 
 #
@@ -143,5 +146,5 @@ plot(x,y,'x', color='k', label="Halflife of average (x=%.5f)"%x)
 
 prop = matplotlib.font_manager.FontProperties(size=10)
 legend(loc=1, prop = prop)
-savefig("hartke.png", dpi=150)
+savefig("hartke.png", dpi=dpi)
 cla()
