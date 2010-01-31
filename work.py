@@ -7,6 +7,7 @@ import sys
 #
 # Average energy from a random analysis:
 ave_energy = -622.52807
+Emin = -636.806
 # DPI for images
 dpi = 150
 
@@ -57,6 +58,7 @@ for file in sys.argv:
 minfs = []
 maxfs = []
 avefs = []
+stdfs = []
 
 minlen = len(xs[0])
 for i in xs:
@@ -65,6 +67,7 @@ for i in xs:
 x = arange(minlen)+1
 for point in x:
     avef = 0
+    stdf = 0
     minf = 10000000
     maxf = -10000000
     count = 0
@@ -74,10 +77,25 @@ for point in x:
         count += 1
         if minf > tf: minf = tf
         if maxf < tf: maxf = tf
-    avef /= count
+    avef /= float(count)
     minfs.append(minf)
     maxfs.append(maxf)
     avefs.append(avef)
+    for run in range(len(xs)):
+        tf = fs[run][point-1]
+        stdf += pow(tf - avef, 2)
+    stdfs.append(sqrt(stdf/float(count)))
+
+#
+# Generate the error region around fs
+#
+higherr = []
+lowerr = []
+for i in range(len(avefs)):
+    higherr.append(avefs[i] + stdfs[i])
+    low = avefs[i] - stdfs[i]
+    if low < Emin: low = Emin
+    lowerr.append(low)
 
 #
 # Create a plot of the percent of runs completed by structure
@@ -103,13 +121,16 @@ cla()
 plot(x,maxfs, color='b', label="Worst-best structure")
 plot(x,avefs, color='r', label="Average best structure")
 plot(x,minfs, color='g', label="Best-best structure")
+#fill_between(x, lowerr, higherr, alpha=0.2, color='r')
 
 # Fit average f function
-E_min = min(minfs)
-E_0 = ave_energy-E_min
+if Emin > min(minfs):
+    print "Warning: Specified Emin (%f) > found Emin (%f)"%(Emin, min(minfs))
+
+E_0 = ave_energy-Emin
 
 def bestFitFunction(c,x,y,get_y=False):
-    y_model = E_0*(e**(c[0]*x**c[1])) + E_min
+    y_model = E_0*(e**(c[0]*x**c[1])) + Emin
     if get_y == True: return y_model
     error = y-y_model
     return error
@@ -117,8 +138,20 @@ def bestFitFunction(c,x,y,get_y=False):
 reg,err,rsq = plotFitData(x,avefs, "Structure number", "Enthalpy (eV)", "Hartke Plot", 
                           "custom", plotData=False, color='k', fitFormat=':', 
                           guess=array([-1,1]), func=bestFitFunction, fitLabel="regEqu", 
-                          customFitLabel="$%se^{(%%s)x^{%%s}}+%s$"%(E_0,E_min))
+                          customFitLabel="$%se^{(%%s)x^{%%s}}+%s$"%(E_0,Emin))
 print "R^2 for hartke fit:",rsq
+
+#
+# Fit error function
+#
+higherr = []
+lowerr = []
+for i in range(len(avefs)):
+    higherr.append(bestFitFunction(reg + err, x[i], 0, True))
+    low = bestFitFunction(reg - err, x[i], 0, True)
+    if low < Emin: low = Emin
+    lowerr.append(low)
+#fill_between(x, lowerr, higherr, alpha=0.2, color='k')
 
 # Solve for halflife with Newton-Raphson:
 tol = 1e-10
@@ -130,7 +163,7 @@ def bestHalfLife(x):
     return reg[0]*x**reg[1] + const
 x = guess
 val = bestHalfLife(x)
-print E_0, E_min, const, reg, x, val
+print E_0, Emin, const, reg, x, val
 while (abs(val) > tol):
     dx = (bestHalfLife(x+diff) - val)/diff
     x = x - val/dx
@@ -140,7 +173,7 @@ while (abs(val) > tol):
 y = bestFitFunction(reg,x,0,True)
 print "At structure %.5f, the energy should be at %.5f (compare to %.5f)"%(x,
                                                                            y,
-                                                                           E_0/2.0+E_min)
+                                                                           E_0/2.0+Emin)
 
 plot(x,y,'x', color='k', label="Halflife of average (x=%.5f)"%x)
 
