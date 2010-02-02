@@ -17,23 +17,33 @@ dpi = 150
 xs = []
 ys = []
 fs = []
+killed = 0
+duplicate = 0
+optimized = 0
+nRuns = 0
 
 sys.argv.pop(0)
 
 for file in sys.argv:
     print "Reading file", file
+    nRuns += 1
     n = getCsvArray(file, 0) + 1
     m = getCsvArray(file, 3)
     gen = getCsvArray(file, 1)
+    status = getCsvStrings(file, 7, True)
 
     x = []
     y = []
 
     # Remove bad values, e.g. errored xtals
     for i in range(len(n)):
-        if abs(m[i]) > 10 and gen[i] != 1:
-            x.append(n[i])
-            y.append(m[i])
+        if gen[i] != 1:
+            if abs(m[i]) > 10:
+                x.append(n[i])
+                y.append(m[i])
+            if status[i] == "Killed": killed+=1
+            if status[i] == "Duplicate": duplicate+=1
+            if status[i] == "Optimized": optimized+=1
 
     t = y[0]
     f = []
@@ -171,13 +181,38 @@ while (abs(val) > tol):
     print "Halflife: %.5f, value: %.6f, dx: %.6f"%(x,val,dx)
 
 y = bestFitFunction(reg,x,0,True)
+halflife = x
+calchalfE = y
+acthalfE = E_0/2.0+Emin
 print "At structure %.5f, the energy should be at %.5f (compare to %.5f)"%(x,
-                                                                           y,
-                                                                           E_0/2.0+Emin)
+                                                                           calchalfE,
+                                                                           acthalfE)
 
-plot(x,y,'x', color='k', label="Halflife of average (x=%.5f)"%x)
+plot(halflife,calchalfE,'x', color='k', label="Halflife of average (x=%.5f)"%x)
 
 prop = matplotlib.font_manager.FontProperties(size=10)
 legend(loc=1, prop = prop)
 savefig("hartke.png", dpi=dpi)
 cla()
+
+#
+# Write summary file:
+#
+str = ""
+str += "nRuns: 		%d"%nRuns + "\n"
+str += "fit-a: 		%s"%numErrorText(reg[0], err[0], 5) + "\n"
+str += "fit-b: 		%s"%numErrorText(reg[1], err[1], 5) + "\n"
+str += "rsq: 		%f"%rsq + "\n"
+str += "halflife:	%f"%halflife + "\n"
+str += "calchalfE: 	%f"%calchalfE + "\n"
+str += "acthalfE:	%f"%acthalfE + "\n"
+str += "ave_energy:	%f"%ave_energy + "\n"
+str += "Emin:		%f"%Emin + "\n"
+str += "killed:		%d (%.5f%%)"%(killed, killed/float(duplicate+optimized+killed)*100) + "\n"
+str += "duplicate:	%d (%.2f%%)"%(duplicate, duplicate/float(duplicate+optimized)*100) + "\n"
+str += "optimized:	%d (%.2f%%)"%(optimized, optimized/float(duplicate+optimized)*100) + "\n"
+
+f = open("summary", 'w')
+f.write(str)
+f.close()
+print "Summary file written:\n" + str
