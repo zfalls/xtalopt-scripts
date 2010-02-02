@@ -363,6 +363,15 @@ def numErrorTex(val,e,maxSigFigs = None):
 	val,e 	= numError(val, e, maxSigFigs)
 	return "%s \\pm %s" % (val,e)
 
+def numErrorText(val,e,maxSigFigs = None):
+	"""Given an number and the error, rounds off each appropriately and adds "+/-" in between them.
+	
+	ex. numErrorTex(45.3223,.04567) returns:
+	"45.32 \pm 0.05"
+	"""
+	val,e 	= numError(val, e, maxSigFigs)
+	return "%s +/- %s" % (val,e)
+
 def numError(val,e,maxSigFigs = None):
 	"""Given an number and the error, rounds off each appropriately and returns a tuple:
 	
@@ -547,20 +556,26 @@ def getCsvArray(file,r = 0, delim="\t"):
     datafile = csv.reader(open(file,"rb"),delimiter=delim,skipinitialspace="true")
     data = []
     for row in datafile:
-            try:
-                    datum = float(row[r])
-            except:
-                    pass
+	    if len(row) - 1 < r:
+		    print "Warning: Length too small (len=%d, ind=%d)"%(len(row),r)
 	    else:
-	    	    data.append(datum)
+		    try:
+			    datum = float(row[r])
+		    except:
+			    pass
+		    else:
+			    data.append(datum)
     return array(data)
 
-def getCsvStrings(file,r = 0):
+def getCsvStrings(file,r = 0, quiet=False):
     datafile = csv.reader(open(file,"rb"),delimiter="\t",skipinitialspace="true")
     data = []
     for row in datafile:
-	    datum = row[r]
-	    data.append(str(datum))
+	    if len(row) - 1 < r:
+		    if not quiet: print "Warning: Length too small (len=%d, ind=%d)"%(len(row),r)
+	    else:
+		    datum = row[r]
+		    data.append(str(datum))
     return array(data)
 
 def writeCsvFile(file,data,headers = None):
