@@ -57,10 +57,10 @@ for file in sys.argv:
     ys.append(y)
     fs.append(f)
     # Create a summary plot for each data set
-    scatter(x,y)
-    plotFitData(x,f, "Structure number", "Enthalpy (eV)", "Summary for %s"%file, "connect", plotData = False, color='r')
-    savefig("%s-summary.png"%file, dpi=dpi)
-    cla()
+#    scatter(x,y)
+#    plotFitData(x,f, "Structure number", "Enthalpy (eV)", "Summary for %s"%file, "connect", plotData = False, color='r')
+#    savefig("%s-summary.png"%file, dpi=dpi)
+#    cla()
 
 #
 # Prepare the data for a Hartke plot
