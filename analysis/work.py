@@ -10,6 +10,8 @@ ave_energy = -622.52807
 Emin = -636.806
 # DPI for images
 dpi = 150
+# Extension for images
+ext = "eps"
 
 #
 # Read data in from files on command line
@@ -59,7 +61,7 @@ for file in sys.argv:
     # Create a summary plot for each data set
 #    scatter(x,y)
 #    plotFitData(x,f, "Structure number", "Enthalpy (eV)", "Summary for %s"%file, "connect", plotData = False, color='r')
-#    savefig("%s-summary.png"%file, dpi=dpi)
+#    savefig("%s-summary.%s"%(file,ext) dpi=dpi)
 #    cla()
 
 #
@@ -122,7 +124,7 @@ for point in range(minlen):
 
 plotFitData(x, percents, "Structure number", "Percent of runs with lowest energy structure", "Percent complete by structure", 
             plotData=False, regType="connect")
-savefig("percents.png", dpi=dpi)
+savefig("percents.%s"%ext, dpi=dpi)
 cla()
 percentDone = percents[len(percents)-1]
 
@@ -193,7 +195,7 @@ plot(halflife,calchalfE,'x', color='k', label="Halflife of average (x=%.5f)"%x)
 
 prop = matplotlib.font_manager.FontProperties(size=10)
 legend(loc=1, prop = prop)
-savefig("hartke.png", dpi=dpi)
+savefig("hartke.%s"%ext, dpi=dpi)
 cla()
 
 #
