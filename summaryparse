@@ -3,8 +3,6 @@
 GREPS=("$@")
 COLS=${#GREPS[@]}
 
-echo "Searching for $COLS strings: ${GREPS[@]}..."
-
 # Get directories
 DATA=()
 TEMPARRAY=(`ls */summary|xargs|sed 's/\/summary//g'`)
