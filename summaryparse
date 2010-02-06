@@ -21,10 +21,10 @@ done
 #Get number of rows 
 ROWS=$((${#DATA[@]}/$((COLS+1))))
 
-format="%-50s"
+format="%-42s"
 for i in `seq 0 $((COLS-1))`
 do
-    format="$format & %10s"
+    format="$format & %5s"
 done
 format="$format \\\\\\\\\n"
 values=("directory" ${GREPS[@]})
