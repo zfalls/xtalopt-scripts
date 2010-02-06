@@ -115,7 +115,7 @@ for point in range(minlen):
     done = 0
     total = 0
     for run in fs:
-        if run[point] - minf < 1e-3:
+        if run[point] < Emin + 1e-3:
             done += 1
         total += 1
     percents.append(done/float(total)*100)
@@ -124,6 +124,7 @@ plotFitData(x, percents, "Structure number", "Percent of runs with lowest energy
             plotData=False, regType="connect")
 savefig("percents.png", dpi=dpi)
 cla()
+percentDone = percents[len(percents)-1]
 
 #
 # Generate the Hartke plot
@@ -203,14 +204,15 @@ str += "nRuns: 		%d"%nRuns + "\n"
 str += "fit-a: 		%s"%numErrorText(reg[0], err[0], 5) + "\n"
 str += "fit-b: 		%s"%numErrorText(reg[1], err[1], 5) + "\n"
 str += "rsq: 		%f"%rsq + "\n"
-str += "halflife:	%f"%halflife + "\n"
+str += "halflife:	%0.1f"%halflife + "\n"
+str += "percentDone:	%0.1f"%percentDone + "\n"
 str += "calchalfE: 	%f"%calchalfE + "\n"
 str += "acthalfE:	%f"%acthalfE + "\n"
 str += "ave_energy:	%f"%ave_energy + "\n"
 str += "Emin:		%f"%Emin + "\n"
-str += "killed:		%d (%.5f%%)"%(killed, killed/float(duplicate+optimized+killed)*100) + "\n"
-str += "duplicate:	%d (%.2f%%)"%(duplicate, duplicate/float(duplicate+optimized)*100) + "\n"
-str += "optimized:	%d (%.2f%%)"%(optimized, optimized/float(duplicate+optimized)*100) + "\n"
+str += "killed:		%0.1f (%d)"%(killed/float(duplicate+optimized+killed)*100,killed) + "\n"
+str += "duplicate:	%0.1f (%d)"%(duplicate/float(duplicate+optimized)*100,duplicate) + "\n"
+str += "optimized:	%0.1f (%d)"%(optimized/float(duplicate+optimized+killed)*100,optimized) + "\n"
 
 f = open("summary", 'w')
 f.write(str)

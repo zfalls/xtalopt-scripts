@@ -1,0 +1,55 @@
+#!/bin/bash
+
+GREPS=("$@")
+COLS=${#GREPS[@]}
+
+echo "Searching for $COLS strings: ${GREPS[@]}..."
+
+# Get directories
+DATA=()
+TEMPARRAY=(`ls */summary|xargs|sed 's/\/summary//g'`)
+DATA=( ${TEMPARRAY[@]} )
+
+# Get grepped values
+for GREP in ${GREPS[@]};
+do
+    TEMPARRAY=(`grep $GREP */summary|awk '{print $2}'|xargs`)
+    DATA=( ${DATA[@]} ${TEMPARRAY[@]} )
+done
+
+#
+#Compile into tex-style table
+#
+#Get number of rows 
+ROWS=$((${#DATA[@]}/$((COLS+1))))
+
+format="%-50s"
+for i in `seq 0 $((COLS-1))`
+do
+    format="$format & %10s"
+done
+format="$format \\\\\\\\\n"
+values=("directory" ${GREPS[@]})
+
+#echo $format
+#echo ${values[@]}
+#c=0
+#for i in ${DATA[@]}
+#    do echo $c $i;c=$((c+1));done;
+
+printf "$format" ${values[@]} 
+
+for i in `seq 0 $((ROWS-1))`
+do
+    values=(${DATA[i]})
+    for j in `seq 1 $COLS`
+    do
+	ind=$((ROWS*j+i))
+	#echo $ind: ${DATA[$ind]}
+	values="$values ${DATA[$ind]}"
+    done
+    #echo ${values[@]}
+    printf "$format" ${values[@]} 
+done
+
+    
