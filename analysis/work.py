@@ -11,7 +11,7 @@ Emin = -636.806
 # DPI for images
 dpi = 150
 # Extension for images
-ext = "eps"
+ext = "pdf"
 
 #
 # Read data in from files on command line

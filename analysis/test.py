@@ -121,10 +121,12 @@ for numruns in arange(len(xs))+1:
     rsqs.append(rsq)
     runs.append(numruns)
 
+halflife = halflives[len(halflives)-1]
 cla()
 plot(runs,halflives, 'k-', label="Halflives")
 gca().set_xlabel("Number of Runs")
 gca().set_ylabel("Halflife")
+gca().set_ylim([halflife-5,halflife+5])
 legend(loc=3)
 twinx()
 plot(runs,rsqs, 'k:', label="$R^2$")
