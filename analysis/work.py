@@ -61,7 +61,7 @@ for file in sys.argv:
     # Create a summary plot for each data set
 #    scatter(x,y)
 #    plotFitData(x,f, "Structure number", "Enthalpy (eV)", "Summary for %s"%file, "connect", plotData = False, color='r')
-#    savefig("%s-summary.%s"%(file,ext) dpi=dpi)
+#    savefig("%s-summary.%s"%(file,ext) dpi=dpi, bbox_inches="tight")
 #    cla()
 
 #
@@ -124,7 +124,7 @@ for point in range(minlen):
 
 plotFitData(x, percents, "Structure number", "Percent of runs with lowest energy structure", "Percent complete by structure", 
             plotData=False, regType="connect")
-savefig("percents.%s"%ext, dpi=dpi)
+savefig("percents.%s"%ext, dpi=dpi, bbox_inches="tight")
 cla()
 percentDone = percents[len(percents)-1]
 
@@ -195,7 +195,7 @@ plot(halflife,calchalfE,'x', color='k', label="Halflife of average (x=%.5f)"%x)
 
 prop = matplotlib.font_manager.FontProperties(size=10)
 legend(loc=1, prop = prop)
-savefig("hartke.%s"%ext, dpi=dpi)
+savefig("hartke.%s"%ext, dpi=dpi, bbox_inches="tight")
 cla()
 
 #
