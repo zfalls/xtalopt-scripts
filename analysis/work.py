@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from dataAnalysis import *
-import sys
+import sys,os
+
+sys.argv.pop(0)
 
 #
 # Configuration:
@@ -14,6 +16,28 @@ dpi = 150
 ext = "pdf"
 
 #
+# Check to see if an update is really necessary
+#
+if sys.argv[0] != "force":
+    if os.path.isfile("hartke.%s"%ext):
+        lastRun = os.stat("hartke.%s"%ext).st_mtime
+        uptodate = True
+        for f in sys.argv:
+            if os.stat(f).st_mtime > lastRun:
+                uptodate = False
+        if uptodate:
+            print "Everything update -- not running"
+            exit(0)
+        else:
+            print "Not up to date -- rechecking"
+    else:
+        print "No files from previous run. Generating data."
+    
+else:
+    sys.argv.pop(0)
+    print "Checking forced..."
+    
+#
 # Read data in from files on command line
 #
 xs = []
@@ -23,8 +47,6 @@ killed = 0
 duplicate = 0
 optimized = 0
 nRuns = 0
-
-sys.argv.pop(0)
 
 for file in sys.argv:
     print "Reading file", file
@@ -40,7 +62,7 @@ for file in sys.argv:
     # Remove bad values, e.g. errored xtals
     for i in range(len(n)):
         if gen[i] != 1:
-            if abs(m[i]) > 10:
+            if abs(m[i]) > 10 and status[i] != "Killed":
                 x.append(n[i])
                 y.append(m[i])
             if status[i] == "Killed": killed+=1
