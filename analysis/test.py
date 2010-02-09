@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from dataAnalysis import *
-import sys
+import sys,os
+
+sys.argv.pop(0)
 
 #
 # Configuration:
@@ -9,12 +11,34 @@ import sys
 ave_energy = -622.52807
 Emin = -636.806
 # DPI for images
+ext = "pdf"
 dpi = 150
 
 #
+# Check to see if an update is really necessary
+#
+if sys.argv[0] != "force":
+    if os.path.isfile("halflives.%s"%ext):
+        lastRun = os.stat("halflives.%s"%ext).st_mtime
+        uptodate = True
+        for f in sys.argv:
+            if os.stat(f).st_mtime > lastRun:
+                uptodate = False
+        if uptodate:
+            print "Everything update -- not running"
+            exit(0)
+        else:
+            print "Not up to date -- rechecking"
+    else:
+        print "No files from previous run. Generating data."
+    
+else:
+    sys.argv.pop(0)
+    print "Checking forced..."
+    
+#
 # Read data in from files on command line
 #
-sys.argv.pop(0)
 
 runs = []
 halflives = []
@@ -132,5 +156,5 @@ twinx()
 plot(runs,rsqs, 'k:', label="$R^2$")
 gca().set_ylabel("$R^2$ of Hartke plot")
 legend(loc=4)
-savefig("halflives.png", dpi=dpi, bbox_inches="tight")
+savefig("halflives.%s"%ext, dpi=dpi, bbox_inches="tight")
 cla()
