@@ -33,12 +33,16 @@ class Cell:
         xoffset = a/float(2*dim)
         yoffset = b/float(2*dim)
         zoffset = c/float(2*dim)
+        #c1 = '0.25'
+        #c2 = '1.00'
+        c1 = 'r'
+        c2 = 'aquamarine'
         for x in arange(0,a,a/float(dim)):
             for y in arange(0,b,b/float(dim)):
-                color = 'r'
+                color = c1
                 for z in arange(0,c,c/float(dim)):
-                    if (color == 'r'): color = 'b'
-                    else: color = 'r'
+                    if (color == c2): color = c1
+                    else: color = c2
                     self.coords.append(Atom(x + xoffset,
                                             y + yoffset,
                                             z + zoffset,

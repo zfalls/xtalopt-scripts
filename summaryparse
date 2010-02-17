@@ -21,7 +21,7 @@ done
 #Get number of rows 
 ROWS=$((${#DATA[@]}/$((COLS+1))))
 
-format="%-50s"
+format="%-55s"
 for i in `seq 0 $((COLS-1))`
 do
     format="$format & %5s"

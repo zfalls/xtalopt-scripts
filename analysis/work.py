@@ -10,6 +10,7 @@ sys.argv.pop(0)
 # Average energy from a random analysis:
 ave_energy = -622.52807
 Emin = -636.806
+Etol = 1e-3
 # DPI for images
 dpi = 150
 # Extension for images
@@ -43,6 +44,7 @@ else:
 xs = []
 ys = []
 fs = []
+firstDone = []
 killed = 0
 duplicate = 0
 optimized = 0
@@ -58,6 +60,7 @@ for file in sys.argv:
 
     x = []
     y = []
+    done = False
 
     # Remove bad values, e.g. errored xtals
     for i in range(len(n)):
@@ -65,9 +68,15 @@ for file in sys.argv:
             if abs(m[i]) > 10 and status[i] != "Killed":
                 x.append(n[i])
                 y.append(m[i])
-            if status[i] == "Killed": killed+=1
-            if status[i] == "Duplicate": duplicate+=1
-            if status[i] == "Optimized": optimized+=1
+            if not done:
+                if fabs(Emin-m[i]) < Etol:
+                    firstDone.append(len(x))
+                    done = True
+                    optimized+=1
+                else:
+                    if status[i] == "Killed": killed+=1
+                    if status[i] == "Duplicate": duplicate+=1
+                    if status[i] == "Optimized": optimized+=1
 
     t = y[0]
     f = []
@@ -139,7 +148,7 @@ for point in range(minlen):
     done = 0
     total = 0
     for run in fs:
-        if run[point] < Emin + 1e-3:
+        if fabs(run[point] - Emin) < Etol:
             done += 1
         total += 1
     percents.append(done/float(total)*100)
@@ -170,9 +179,11 @@ def bestFitFunction(c,x,y,get_y=False):
     error = y-y_model
     return error
 
+xmax = max(x)
+
 reg,err,rsq = plotFitData(x,avefs, "Structure number", "Enthalpy (eV)", "Hartke Plot", 
                           "custom", plotData=False, color='k', fitFormat=':', 
-                          guess=array([-1,1]), func=bestFitFunction, fitLabel="regEqu", 
+                          guess=array([-1,1]), func=bestFitFunction, fitLabel="Fitted exponential", 
                           customFitLabel="$%se^{(%%s)x^{%%s}}+%s$"%(E_0,Emin))
 print "R^2 for hartke fit:",rsq
 
@@ -213,18 +224,24 @@ print "At structure %.5f, the energy should be at %.5f (compare to %.5f)"%(x,
                                                                            calchalfE,
                                                                            acthalfE)
 
-plot(halflife,calchalfE,'x', color='k', label="Halflife of average (x=%.5f)"%x)
+plot(halflife,calchalfE,'x', color='k', label="Halflife of average (x=%.0f)"%x)
 
 prop = matplotlib.font_manager.FontProperties(size=10)
 legend(loc=1, prop = prop)
+gca().set_xlim((0,xmax))
 savefig("hartke.%s"%ext, dpi=dpi, bbox_inches="tight")
 cla()
+
+# First done info
+fdval = array(firstDone).mean()
+fdstdev = array(firstDone).std()
 
 #
 # Write summary file:
 #
 str = ""
 str += "nRuns: 		%d"%nRuns + "\n"
+str += "xmax:  		%d"%xmax + "\n"
 str += "fit-a: 		%s"%numErrorText(reg[0], err[0], 5) + "\n"
 str += "fit-b: 		%s"%numErrorText(reg[1], err[1], 5) + "\n"
 str += "rsq: 		%f"%rsq + "\n"
@@ -234,8 +251,10 @@ str += "calchalfE: 	%f"%calchalfE + "\n"
 str += "acthalfE:	%f"%acthalfE + "\n"
 str += "ave_energy:	%f"%ave_energy + "\n"
 str += "Emin:		%f"%Emin + "\n"
+str += "first-val:	%d"%fdval + "\n"
+str += "first-std:	%d"%fdstdev + "\n"
 str += "killed:		%0.1f (%d)"%(killed/float(duplicate+optimized+killed)*100,killed) + "\n"
-str += "duplicate:	%0.1f (%d)"%(duplicate/float(duplicate+optimized)*100,duplicate) + "\n"
+str += "duplicate:	%0.1f (%d)"%(duplicate/float(duplicate+optimized+killed)*100,duplicate) + "\n"
 str += "optimized:	%0.1f (%d)"%(optimized/float(duplicate+optimized+killed)*100,optimized) + "\n"
 
 f = open("summary", 'w')
