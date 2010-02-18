@@ -60,6 +60,7 @@ def generateSummary(path, files, force=False):
 
         x = []
         y = []
+        lowest = 0
         done = False
 
         # Remove bad values, e.g. errored xtals
@@ -70,7 +71,7 @@ def generateSummary(path, files, force=False):
                     y.append(m[i])
                 if not done:
                     if fabs(Emin-m[i]) < Etol:
-                        firstDone.append(len(x))
+                        lowest = len(x)
                         done = True
                         optimized+=1
                     else:
@@ -78,6 +79,7 @@ def generateSummary(path, files, force=False):
                         if status[i] == "Duplicate": duplicate+=1
                         if status[i] == "Optimized": optimized+=1
 
+        firstDone.append(lowest)                
         t = y[0]
         f = []
 
@@ -232,6 +234,26 @@ def generateSummary(path, files, force=False):
     #cla()
 
     # First done info
+    # Estimate expected finish value for runs that did not complete:
+    tol = 1e-10
+    guess = 1000
+    diff = 1e-5
+    def estimatedFinish(x):
+        return bestFitFunction(reg,x,0,True) - (Emin + 0.05)
+    x = guess
+    val = estimatedFinish(x)
+    while (abs(val) > tol):
+        dx = (estimatedFinish(x+diff) - val)/diff
+        x = x - val/dx
+        val = estimatedFinish(x)
+	print "EstFinish: %.5f, value: %.6f, dx: %.6f"%(x,val,dx)
+
+    estFinish = x
+
+    # Replace unfinished runs
+    for i in range(len(firstDone)):
+        if firstDone[i] == 0: firstDone[i] = estFinish
+
     fdval = array(firstDone).mean()
     fdstdev = array(firstDone).std()
 
@@ -250,6 +272,7 @@ def generateSummary(path, files, force=False):
     str += "acthalfE:		%f"%acthalfE + "\n"
     str += "ave_energy:		%f"%ave_energy + "\n"
     str += "Emin:		%f"%Emin + "\n"
+    str += "estFinish:		%d"%estFinish + "\n"
     str += "first-val:		%d"%fdval + "\n"
     str += "first-std:		%d"%fdstdev + "\n"
     str += "killed:		%0.1f (%d)"%(killed/float(duplicate+optimized+killed)*100,killed) + "\n"
@@ -387,7 +410,7 @@ def generateResults(tests):
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
     i = 1;
-    maxval = 0;
+    maxval = 600;
     vals = []
     halflives = []
     for search in searches:
@@ -403,7 +426,7 @@ def generateResults(tests):
         ax1.errorbar(val, i, xerr=std, ecolor='k')
         halflives.append(halflife)
         vals.append(val)
-        if maxval < val+std: maxval = val+std
+#        if maxval < val+std: maxval = val+std
         i += 1
 
     maxval += 0.05*maxval
