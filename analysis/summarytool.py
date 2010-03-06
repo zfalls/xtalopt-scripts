@@ -163,9 +163,9 @@ def generateSummary(path, files, force=False):
     #
     # Generate the Hartke plot
     #
-    #plot(x,maxfs, color='b', label="Worst-best structure")
-    #plot(x,avefs, color='r', label="Average best structure")
-    #plot(x,minfs, color='g', label="Best-best structure")
+    plot(x,maxfs, color='b', label="Worst-best structure")
+    plot(x,avefs, color='r', label="Average best structure")
+    plot(x,minfs, color='g', label="Best-best structure")
     #fill_between(x, lowerr, higherr, alpha=0.2, color='r')
 
     # Fit average f function
@@ -210,12 +210,12 @@ def generateSummary(path, files, force=False):
         return reg[0]*x**reg[1] + const
     x = guess
     val = bestHalfLife(x)
-    #print E_0, Emin, const, reg, x, val
+    print E_0, Emin, const, reg, x, val
     while (abs(val) > tol):
         dx = (bestHalfLife(x+diff) - val)/diff
         x = x - val/dx
         val = bestHalfLife(x)
-	#print "Halflife: %.5f, value: %.6f, dx: %.6f"(x,val,dx)
+	print "Halflife: %.5f, value: %.6f, dx: %.6f"%(x,val,dx)
 
     y = bestFitFunction(reg,x,0,True)
     halflife = x
@@ -225,13 +225,13 @@ def generateSummary(path, files, force=False):
     #calchalfE,
     #acthalfE)
 
-    #plot(halflife,calchalfE,'x', color='k', label="Halflife of average (x=%.0f)"%x)
+    plot(halflife,calchalfE,'x', color='k', label="Halflife of average (x=%.0f)"%x)
 
-    #prop = matplotlib.font_manager.FontProperties(size=10)
-    #legend(loc=1, prop = prop)
-    #gca().set_xlim((0,xmax))
-    #savefig("%s/hartke.%s"%(path,ext), dpi=dpi, bbox_inches="tight")
-    #cla()
+    prop = matplotlib.font_manager.FontProperties(size=10)
+    legend(loc=1, prop = prop)
+    gca().set_xlim((0,xmax))
+    savefig("%s/hartke.%s"%(path,ext), dpi=dpi, bbox_inches="tight")
+    cla()
 
     # First done info
     # Estimate expected finish value for runs that did not complete:
