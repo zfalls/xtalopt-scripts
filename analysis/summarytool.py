@@ -66,7 +66,9 @@ def generateSummary(path, files, force=False):
         # Remove bad values, e.g. errored xtals
         for i in range(len(n)):
             if gen[i] != 1:
-                if abs(m[i]) > 10 and status[i] != "Killed":
+                # If value is significantly lower than Emin, there's
+                # likely a glitch in the calc. Also remove killed xtals.
+                if status[i] != "Killed" and (abs(Emin) - abs(m[i]) > -Etol*10):
                     x.append(n[i])
                     y.append(m[i])
                 if not done:
@@ -203,19 +205,26 @@ def generateSummary(path, files, force=False):
     # Solve for halflife with Newton-Raphson:
     tol = 1e-10
     guess = 100
-    diff = 1e-5
+    diff = 1e-1
 
     const = -log(1/2.0)
     def bestHalfLife(x):
         return reg[0]*x**reg[1] + const
     x = guess
     val = bestHalfLife(x)
-    print E_0, Emin, const, reg, x, val
+#    print E_0, Emin, const, reg, x, val
     while (abs(val) > tol):
+        # Constrain x to be positive
+        x = abs(x)
         dx = (bestHalfLife(x+diff) - val)/diff
         x = x - val/dx
+        # Constrain x to be positive
+        x = abs(x)
         val = bestHalfLife(x)
-	print "Halflife: %.5f, value: %.6f, dx: %.6f"%(x,val,dx)
+#        print "x = %f"%x
+#        print "val = %f = %f"%(val,bestHalfLife(x))
+#        print "val equ: %f*%f**%f+%f = %f"%(reg[0],x,reg[1], const, reg[0]*x**reg[1]+const)
+#	print "Halflife: %.5f, value: %.6f, dx: %.6f"%(x,val,dx)
 
     y = bestFitFunction(reg,x,0,True)
     halflife = x
@@ -243,10 +252,13 @@ def generateSummary(path, files, force=False):
     x = guess
     val = estimatedFinish(x)
     while (abs(val) > tol):
+        if x == inf: 
+            x = 1e8
+            break
         dx = (estimatedFinish(x+diff) - val)/diff
         x = x - val/dx
         val = estimatedFinish(x)
-	print "EstFinish: %.5f, value: %.6f, dx: %.6f"%(x,val,dx)
+#	print "EstFinish: %.5f, value: %.6f, dx: %.6f"%(x,val,dx)
 
     estFinish = x
 
