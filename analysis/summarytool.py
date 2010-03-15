@@ -245,20 +245,28 @@ def generateSummary(path, files, force=False):
     # First done info
     # Estimate expected finish value for runs that did not complete:
     tol = 1e-10
-    guess = 1000
+    guess = 400
     diff = 1e-5
     def estimatedFinish(x):
-        return bestFitFunction(reg,x,0,True) - (Emin + 0.05)
+        return bestFitFunction(reg,x,0,True) - (Emin + 0.1)
     x = guess
     val = estimatedFinish(x)
+    #print "EstFinish: %.5f, value: %.6f, dx: %.6f"%(x,val,dx)
     while (abs(val) > tol):
-        if x == inf: 
-            x = 1e8
-            break
         dx = (estimatedFinish(x+diff) - val)/diff
         x = x - val/dx
+        # Shouldn't be negative...
+        x = abs(x);
+        # Shouldn't be infinity
+        if x == inf: 
+            x = 1e10
+            print "Cannot converge, setting expected finished to 1e10 (from inf)."
+            break
         val = estimatedFinish(x)
-#	print "EstFinish: %.5f, value: %.6f, dx: %.6f"%(x,val,dx)
+        # Eliminate bad values
+        if isnan(val):
+            val = 1
+        #print "EstFinish: %.5f, value: %.6f, dx: %.6f"%(x,val,dx)
 
     estFinish = x
 
