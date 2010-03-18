@@ -245,10 +245,11 @@ def generateSummary(path, files, force=False):
     # First done info
     # Estimate expected finish value for runs that did not complete:
     tol = 1e-10
-    guess = 400
+    guess = 1
     diff = 1e-5
+    cutoff = 0.01
     def estimatedFinish(x):
-        return bestFitFunction(reg,x,0,True) - (Emin + 0.1)
+        return bestFitFunction(reg,x,0,True) - (Emin + cutoff)
     x = guess
     val = estimatedFinish(x)
     #print "EstFinish: %.5f, value: %.6f, dx: %.6f"%(x,val,dx)
