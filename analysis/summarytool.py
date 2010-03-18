@@ -7,9 +7,29 @@ def generateSummary(path, files, force=False):
     #
     # Configuration:
     #
-    # Average energy from a random analysis:
-    ave_energy = -622.52807
-    Emin = -636.806
+    # Average energy from a random analysis
+    TiO2_ave_energy = -622.52807/16.0
+    ave_energy = inf
+    for i in [4, 6, 8, 10, 16, 20]:
+        if (path.find("%02dxTiO2"%i) != -1):
+            ave_energy = i * TiO2_ave_energy
+            break
+    if ave_energy == inf: 
+        print "Cannot determine average energy value from %s (must be hardcoded). Bailing..."%path
+        return;
+    # Set the minimum energy based on the path
+    TiO2_Energy = -39.80035761
+    EMin = inf
+    for i in [4, 6, 8, 10, 16, 20]:
+        if (path.find("%02dxTiO2"%i) != -1):
+            Emin = i * TiO2_Energy
+            break
+    if Emin == inf: 
+        print "Cannot determine lowest energy value from %s (must be hardcoded). Bailing..."%path
+        return;
+
+    print "Emin=%.3f"%Emin
+        
     Etol = 1e-3
     # DPI for images
     dpi = 150
@@ -161,6 +181,7 @@ def generateSummary(path, files, force=False):
     #savefig("%s/percents.%s"%(path,ext), dpi=dpi, bbox_inches="tight")
     #cla()
     percentDone = percents[len(percents)-1]
+    
 
     #
     # Generate the Hartke plot
