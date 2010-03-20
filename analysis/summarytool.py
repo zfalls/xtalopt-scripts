@@ -304,6 +304,7 @@ def generateSummary(path, files, force=False):
     #
     str = ""
     str += "nRuns: 		%d"%nRuns + "\n"
+    str += "nStructs:		%d"%minlen + "\n"
     str += "xmax:  		%d"%xmax + "\n"
     str += "fit-a: 		%s"%numErrorText(reg[0], err[0], 5) + "\n"
     str += "fit-b: 		%s"%numErrorText(reg[1], err[1], 5) + "\n"
