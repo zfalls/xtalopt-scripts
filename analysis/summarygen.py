@@ -28,4 +28,4 @@ for test in tests:
     generateSummary(test, files, force)
 
 # make table and plot
-generateResults(tests)
+#generateResults(tests)

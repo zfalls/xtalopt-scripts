@@ -10,6 +10,8 @@ def generateSummary(path, files, force=False):
     # Average energy from a random analysis
     TiO2_ave_energy = -622.52807/16.0
     ave_energy = inf
+    if (path.find("10xSrTiO3") != -1):
+        ave_energy = -1484.52192
     for i in [4, 6, 8, 10, 16, 20]:
         if (path.find("%02dxTiO2"%i) != -1):
             ave_energy = i * TiO2_ave_energy
@@ -18,19 +20,24 @@ def generateSummary(path, files, force=False):
         print "Cannot determine average energy value from %s (must be hardcoded). Bailing..."%path
         return;
     # Set the minimum energy based on the path
+    Etol = 0
     TiO2_Energy = -39.80035761
     EMin = inf
+    if (path.find("10xSrTiO3") != -1):
+        Emin = -1500.31206685
+        Etol = 1
     for i in [4, 6, 8, 10, 16, 20]:
         if (path.find("%02dxTiO2"%i) != -1):
             Emin = i * TiO2_Energy
+            Etol = 1e-3
             break
     if Emin == inf: 
         print "Cannot determine lowest energy value from %s (must be hardcoded). Bailing..."%path
         return;
 
     print "Emin=%.3f"%Emin
+    print "Etol=%.3f"%Etol
         
-    Etol = 1e-3
     # DPI for images
     dpi = 150
     # Extension for images
@@ -77,6 +84,7 @@ def generateSummary(path, files, force=False):
         m = getCsvArray(file, 3)
         gen = getCsvArray(file, 1)
         status = getCsvStrings(file, 7, True)
+        source = getCsvStrings(file, 8, True)
 
         x = []
         y = []
@@ -88,7 +96,7 @@ def generateSummary(path, files, force=False):
             if gen[i] != 1:
                 # If value is significantly lower than Emin, there's
                 # likely a glitch in the calc. Also remove killed xtals.
-                if status[i] != "Killed" and (abs(Emin) - abs(m[i]) > -Etol*10):
+                if status[i] != "Killed" and (abs(Emin) - abs(m[i]) > -Etol) and abs(m[i]) > 10:
                     x.append(n[i])
                     y.append(m[i])
                 if not done:
@@ -168,6 +176,7 @@ def generateSummary(path, files, force=False):
     # Create a plot of the percent of runs completed by structure
     #
     percents = []
+    print minlen
     for point in range(minlen):
         done = 0
         total = 0

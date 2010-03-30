@@ -24,7 +24,7 @@ ROWS=$((${#DATA[@]}/$((COLS+1))))
 format="%-40s"
 for i in `seq 0 $((COLS-1))`
 do
-    format="$format & %5s"
+    format="$format & %6s"
 done
 format="$format \\\\\\\\\n"
 values=("directory" ${GREPS[@]})
