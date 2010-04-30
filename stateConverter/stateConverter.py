@@ -7,6 +7,7 @@ filename = sys.argv[1]
 class convTable:
     def __init__(self):
         self.m_lookup = {}
+        self.m_bools = []
         self.addNew("optType", "edit\\optType")
         self.addNew("numInitial", "opt\\opt\\numInitial")
         self.addNew("popSize", "opt\\opt\\popSize")
@@ -44,6 +45,9 @@ class convTable:
         self.addNew("using_fixed_volume", "init\\using\\fixedVolume")
         self.addNew("using_shortestInteratomicDistance", "init\\using\\shortestInteratomicDistance")
         self.addNew("using_remote", "sys\\remote")
+        self.addBool("using_fixed_volume")
+        self.addBool("using_shortestInteratomicDistance")
+        self.addBool("using_remote")
         self.addNew("limitRunningJobs", "opt\\opt\\limitRunningJobs")
         self.addNew("runningJobLimit", "opt\\opt\\runningJobLimit")
         self.addNew("failLimit", "opt\\opt\\failLimit")
@@ -60,10 +64,16 @@ class convTable:
     def addNew(self,oldkey,newkey):
         self.m_lookup[oldkey] = newkey
 
+    def addBool(self,oldkey):
+        self.m_bools.append(oldkey)
+
     def convert(self,oldkey,value):
         if oldkey not in self.m_lookup.keys():
             print "Unknown key: %s"%oldkey
             return "%s=%s\n"%(oldkey,value.strip())
+        if oldkey in self.m_bools:
+            if int(value) == 1:	value = "true"
+            else: 		value = "false"
         return "%s=%s\n"%(self.m_lookup[oldkey],value.strip())
 
     def has(self, key):
@@ -86,7 +96,11 @@ for line in old:
     # Set composition
     if key == "Composition":
         comp = val.split()
+        size = 0
         for i in range(len(comp)/2):
-            new.write("init\composition\%d\\atomicNumber\%d\n"%(i+1,int(comp[2*i])))
-            new.write("init\composition\%d\quantity\%d\n"%(i+1,int(comp[2*i+1])))
+            size +=1
+            new.write("init\composition\%d\\atomicNumber=%d\n"%(i+1,int(comp[2*i])))
+            new.write("init\composition\%d\quantity=%d\n"%(i+1,int(comp[2*i+1])))
+        new.write("init\composition\size=%d\n"%(i+1,int(comp[2*i+1])))
+
 print "%s converted!"%filename
