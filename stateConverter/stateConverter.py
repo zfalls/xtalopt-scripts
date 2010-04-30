@@ -59,7 +59,7 @@ class convTable:
         self.addNew("queueDelete", "sys\\queue\\qdel")
         self.addNew("host", "sys\\remote\\host")
         self.addNew("username", "sys\\remote\\username")
-        self.addNew("rempath", "sys\\rempath\\rempath")
+        self.addNew("rempath", "sys\\remote\\rempath")
 
     def addNew(self,oldkey,newkey):
         self.m_lookup[oldkey] = newkey
