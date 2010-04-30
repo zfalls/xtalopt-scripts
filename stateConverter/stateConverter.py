@@ -101,6 +101,6 @@ for line in old:
             size +=1
             new.write("init\composition\%d\\atomicNumber=%d\n"%(i+1,int(comp[2*i])))
             new.write("init\composition\%d\quantity=%d\n"%(i+1,int(comp[2*i+1])))
-        new.write("init\composition\size=%d\n"%(i+1,int(comp[2*i+1])))
+        new.write("init\composition\size=%d\n"%(size))
 
 print "%s converted!"%filename
